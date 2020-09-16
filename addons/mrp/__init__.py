@@ -13,10 +13,12 @@ def _pre_init_mrp(cr):
         - Creating the computed+stored field stock_move.is_done is terribly slow with the ORM and
           leads to "Out of Memory" crashes
         - stock.move.line.done_move is a stored+related on the former... """
+    cr.execute("""ALTER TABLE "stock_move" ADD COLUMN "unit_factor" float;""")
     cr.execute("""ALTER TABLE "stock_move" ADD COLUMN "is_done" bool;""")
     cr.execute("""ALTER TABLE "stock_move_line" ADD COLUMN "done_move" bool;""")
     cr.execute("""UPDATE stock_move
-                     SET is_done=TRUE
+                     SET is_done=TRUE,
+                         unit_factor=1.0
                    WHERE STATE='done'
                       OR STATE='cancel';""")
     cr.execute("""UPDATE stock_move_line
